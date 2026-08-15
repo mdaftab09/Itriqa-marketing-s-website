@@ -15,50 +15,31 @@ export function AdminLayout() {
     const location = useLocation();
     const { signOut, user } = useAuth();
 
-    // Admin panel intentionally limited to Photography management.
+    // The admin panel is intentionally limited to Photography management.
     const navItems = [
-        {
-            path: '/admin/photography',
-            label: 'Photography',
-            icon: Camera
-        },
+        { path: '/admin/photography', label: 'Photography', icon: Camera },
     ];
 
-    const isActive = (path: string) => {
+    const isActive = (path: string, exact?: boolean) => {
+        if (exact) return location.pathname === path;
         return location.pathname.startsWith(path);
     };
 
     return (
         <div className="min-h-screen bg-background flex">
-
             {/* Sidebar */}
-            <aside
-                className={`
-                    fixed inset-y-0 left-0 z-50 w-64
-                    bg-card border-r border-border
-                    transform transition-transform duration-300
-                    lg:translate-x-0 lg:static
-                    ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-                `}
-            >
+            <aside className={`
+        fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-300 lg:translate-x-0 lg:static
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
                 <div className="flex flex-col h-full">
-
                     {/* Logo */}
                     <div className="p-6 border-b border-border">
-                        <Link
-                            to="/admin"
-                            className="flex items-center gap-3"
-                            onClick={() => setSidebarOpen(false)}
-                        >
+                        <Link to="/admin" className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent/90 rounded-xl flex items-center justify-center">
-                                <span className="text-white font-bold text-lg">
-                                    I
-                                </span>
+                                <span className="text-white font-bold text-lg">I</span>
                             </div>
-
-                            <span className="font-bold text-lg text-foreground">
-                                Admin Panel
-                            </span>
+                            <span className="font-bold text-lg text-foreground">Admin Panel</span>
                         </Link>
                     </div>
 
@@ -70,69 +51,39 @@ export function AdminLayout() {
                                 to={item.path}
                                 onClick={() => setSidebarOpen(false)}
                                 className={`
-                                    flex items-center gap-3
-                                    px-4 py-3 rounded-xl
-                                    transition-all
-                                    ${
-                                        isActive(item.path)
-                                            ? 'bg-accent text-accent-foreground'
-                                            : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                  flex items-center gap-3 px-4 py-3 rounded-xl transition-all
+                  ${isActive(item.path)
+                                        ? 'bg-accent text-accent-foreground'
+                                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                                     }
-                                `}
+                `}
                             >
                                 <item.icon className="w-5 h-5" />
-
-                                <span className="font-medium">
-                                    {item.label}
-                                </span>
+                                <span className="font-medium">{item.label}</span>
                             </Link>
                         ))}
                     </nav>
 
                     {/* User & Logout */}
                     <div className="p-4 border-t border-border space-y-2">
-
-                        {/* View Website */}
                         <Link
                             to="/"
-                            onClick={() => setSidebarOpen(false)}
-                            className="
-                                flex items-center gap-3
-                                px-4 py-3 rounded-xl
-                                text-muted-foreground
-                                hover:bg-secondary
-                                hover:text-foreground
-                                transition-all
-                            "
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
                         >
                             <Home className="w-5 h-5" />
-
-                            <span className="font-medium">
-                                View Website
-                            </span>
+                            <span className="font-medium">View Website</span>
                         </Link>
 
-                        {/* Logged-in User */}
                         <div className="px-4 py-2 text-sm text-muted-foreground truncate">
                             {user?.email}
                         </div>
 
-                        {/* Sign Out */}
                         <button
                             onClick={() => signOut()}
-                            className="
-                                w-full flex items-center gap-3
-                                px-4 py-3 rounded-xl
-                                text-red-500
-                                hover:bg-red-500/10
-                                transition-all
-                            "
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all"
                         >
                             <LogOut className="w-5 h-5" />
-
-                            <span className="font-medium">
-                                Sign Out
-                            </span>
+                            <span className="font-medium">Sign Out</span>
                         </button>
                     </div>
                 </div>
@@ -140,38 +91,16 @@ export function AdminLayout() {
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-h-screen">
-
                 {/* Mobile Header */}
-                <header
-                    className="
-                        lg:hidden sticky top-0 z-40
-                        bg-background border-b border-border
-                        px-4 py-3
-                        flex items-center justify-between
-                    "
-                >
+                <header className="lg:hidden sticky top-0 z-40 bg-background border-b border-border px-4 py-3 flex items-center justify-between">
                     <button
                         onClick={() => setSidebarOpen(!sidebarOpen)}
-                        className="
-                            p-2
-                            hover:bg-secondary
-                            rounded-lg
-                            transition-colors
-                        "
-                        aria-label="Toggle menu"
+                        className="p-2 hover:bg-secondary rounded-lg transition-colors"
                     >
-                        {sidebarOpen ? (
-                            <X className="w-6 h-6" />
-                        ) : (
-                            <Menu className="w-6 h-6" />
-                        )}
+                        {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                     </button>
-
-                    <span className="font-bold text-foreground">
-                        Admin Panel
-                    </span>
-
-                    <div className="w-10" />
+                    <span className="font-bold text-foreground">Admin Panel</span>
+                    <div className="w-10" /> {/* Spacer */}
                 </header>
 
                 {/* Page Content */}
@@ -186,12 +115,7 @@ export function AdminLayout() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="
-                        fixed inset-0
-                        bg-black/50
-                        z-40
-                        lg:hidden
-                    "
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
