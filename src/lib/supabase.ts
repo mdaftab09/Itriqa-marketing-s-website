@@ -1,6 +1,10 @@
-import { type SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-export const supabase: SupabaseClient | null = null;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+export const supabase: SupabaseClient | null =
+    supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 // Types
 export interface Blog {
@@ -433,4 +437,144 @@ export async function getAllLegalPages(): Promise<LegalPage[]> {
     }
 
     return data || [];
+}
+
+
+export interface PhotographyPhoto {
+    id: string;
+    storage_path: string;
+    title: string;
+    alt_text: string;
+    sort_order: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export async function getPhotographyPhotos(): Promise<PhotographyPhoto[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('photography_photos')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true });
+
+    if (error) {
+        console.error('Error fetching photography:', error);
+        return [];
+    }
+
+    return data || [];
+}
+
+export function getPhotographyPublicUrl(storagePath: string): string | null {
+    if (!supabase) return null;
+    const { data } = supabase.storage.from('photography').getPublicUrl(storagePath);
+    return data.publicUrl;
+}
+
+export async function uploadPhotographyPhoto(file: File, title = '', altText = '') {
+    if (!supabase) throw new Error('Supabase is not configured.');
+
+    const extension = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : 'jpg';
+    const storagePath = `${crypto.randomUUID()}.${extension}`;
+
+    const { error: uploadError } = await supabase.storage
+        .from('photography')
+        .upload(storagePath, file, { cacheControl: '31536000', upsert: false });
+
+    if (uploadError) throw uploadError;
+
+    const { data: lastPhoto } = await supabase
+        .from('photography_photos')
+        .select('sort_order')
+        .order('sort_order', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    const nextOrder = (lastPhoto?.sort_order ?? -1) + 1;
+
+    const { data, error: insertError } = await supabase
+        .from('photography_photos')
+        .insert({
+            storage_path: storagePath,
+            title: title || file.name.replace(/\.[^/.]+$/, ''),
+            alt_text: altText || title || 'Irtiqa Marketing photography',
+            sort_order: nextOrder,
+        })
+        .select()
+        .single();
+
+    if (insertError) {
+        await supabase.storage.from('photography').remove([storagePath]);
+        throw insertError;
+    }
+
+    return data as PhotographyPhoto;
+}
+
+export async function replacePhotographyPhoto(id: string, oldStoragePath: string, file: File) {
+    if (!supabase) throw new Error('Supabase is not configured.');
+
+    const extension = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : 'jpg';
+    const newStoragePath = `${crypto.randomUUID()}.${extension}`;
+
+    const { error: uploadError } = await supabase.storage
+        .from('photography')
+        .upload(newStoragePath, file, { cacheControl: '31536000', upsert: false });
+
+    if (uploadError) throw uploadError;
+
+    const { error: updateError } = await supabase
+        .from('photography_photos')
+        .update({ storage_path: newStoragePath, updated_at: new Date().toISOString() })
+        .eq('id', id);
+
+    if (updateError) {
+        await supabase.storage.from('photography').remove([newStoragePath]);
+        throw updateError;
+    }
+
+    await supabase.storage.from('photography').remove([oldStoragePath]);
+    return newStoragePath;
+}
+
+export async function updatePhotographyMetadata(id: string, title: string, altText: string) {
+    if (!supabase) throw new Error('Supabase is not configured.');
+
+    const { error } = await supabase
+        .from('photography_photos')
+        .update({ title, alt_text: altText, updated_at: new Date().toISOString() })
+        .eq('id', id);
+
+    if (error) throw error;
+}
+
+export async function deletePhotographyPhoto(id: string, storagePath: string) {
+    if (!supabase) throw new Error('Supabase is not configured.');
+
+    const { error: deleteRowError } = await supabase
+        .from('photography_photos')
+        .delete()
+        .eq('id', id);
+
+    if (deleteRowError) throw deleteRowError;
+
+    const { error: deleteFileError } = await supabase.storage
+        .from('photography')
+        .remove([storagePath]);
+
+    if (deleteFileError) console.warn('Photo metadata deleted but storage cleanup failed:', deleteFileError);
+}
+
+export async function reorderPhotographyPhotos(items: Array<Pick<PhotographyPhoto, 'id'> & { sort_order: number }>) {
+    if (!supabase) throw new Error('Supabase is not configured.');
+
+    for (const item of items) {
+        const { error } = await supabase
+            .from('photography_photos')
+            .update({ sort_order: item.sort_order, updated_at: new Date().toISOString() })
+            .eq('id', item.id);
+        if (error) throw error;
+    }
 }

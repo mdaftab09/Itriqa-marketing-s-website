@@ -32,22 +32,11 @@ const Photography = lazy(() => import('./components/pages/Photography').then(m =
 // Lazy load admin components
 const AdminLogin = lazy(() => import('./components/admin/AdminLogin').then(m => ({ default: m.AdminLogin })));
 const AdminLayout = lazy(() => import('./components/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
-const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
-const AdminBlogs = lazy(() => import('./components/admin/AdminBlogs').then(m => ({ default: m.AdminBlogs })));
-const BlogEditor = lazy(() => import('./components/admin/BlogEditor').then(m => ({ default: m.BlogEditor })));
-const AdminTestimonials = lazy(() => import('./components/admin/AdminTestimonials').then(m => ({ default: m.AdminTestimonials })));
-const TestimonialEditor = lazy(() => import('./components/admin/TestimonialEditor').then(m => ({ default: m.TestimonialEditor })));
-const AdminServices = lazy(() => import('./components/admin/AdminServices').then(m => ({ default: m.AdminServices })));
-const ServiceEditor = lazy(() => import('./components/admin/ServiceEditor').then(m => ({ default: m.ServiceEditor })));
-const AdminPortfolio = lazy(() => import('./components/admin/AdminPortfolio').then(m => ({ default: m.AdminPortfolio })));
-const ProjectEditor = lazy(() => import('./components/admin/ProjectEditor').then(m => ({ default: m.ProjectEditor })));
-const AdminNewsletter = lazy(() => import('./components/admin/AdminNewsletter').then(m => ({ default: m.AdminNewsletter })));
-const AdminLegalPages = lazy(() => import('./components/admin/AdminLegalPages').then(m => ({ default: m.AdminLegalPages })));
-const LegalPageEditor = lazy(() => import('./components/admin/LegalPageEditor').then(m => ({ default: m.LegalPageEditor })));
 
 // Non-lazy imports for core functionality
 import { AuthProvider } from './components/admin/AuthContext';
 import { ProtectedRoute } from './components/admin/ProtectedRoute';
+import { AdminPhotography } from './components/admin/AdminPhotography';
 
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -108,23 +97,8 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     >
-                      <Route index element={<AdminDashboard />} />
-                      <Route path="blogs" element={<AdminBlogs />} />
-                      <Route path="blogs/new" element={<BlogEditor />} />
-                      <Route path="blogs/:id" element={<BlogEditor />} />
-                      <Route path="testimonials" element={<AdminTestimonials />} />
-                      <Route path="testimonials/new" element={<TestimonialEditor />} />
-                      <Route path="testimonials/:id" element={<TestimonialEditor />} />
-                      <Route path="services" element={<AdminServices />} />
-                      <Route path="services/new" element={<ServiceEditor />} />
-                      <Route path="services/:id" element={<ServiceEditor />} />
-                      <Route path="portfolio" element={<AdminPortfolio />} />
-                      <Route path="portfolio/new" element={<ProjectEditor />} />
-                      <Route path="portfolio/:id" element={<ProjectEditor />} />
-                      <Route path="newsletter" element={<AdminNewsletter />} />
-                      <Route path="legal" element={<AdminLegalPages />} />
-                      <Route path="legal/new" element={<LegalPageEditor />} />
-                      <Route path="legal/:id" element={<LegalPageEditor />} />
+                      <Route index element={<Navigate to="/admin/photography" replace />} />
+                      <Route path="photography" element={<AdminPhotography />} />
                     </Route>
 
                     {/* Main Site Routes */}

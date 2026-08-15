@@ -2,8 +2,10 @@ import { SEO } from '../SEO';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Camera } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getPhotographyPhotos, getPhotographyPublicUrl } from '../../lib/supabase';
 
-const photos = [
+const fallbackPhotos = [
   'IMG_4056.webp', 'IMG_4058.webp', 'IMG_4059.webp', 'IMG_4060.webp',
   'IMG_4061.webp', 'IMG_4062.webp', 'IMG_4063.webp', 'IMG_4064.webp',
   'IMG_4066.webp', 'IMG_4067.webp', 'IMG_6798.webp', 'IMG_6801.webp',
@@ -11,6 +13,18 @@ const photos = [
 ];
 
 export function Photography() {
+  const [managedPhotos, setManagedPhotos] = useState<Array<{ id: string; storage_path: string; title: string; alt_text: string }>>([]);
+
+  useEffect(() => {
+    let active = true;
+    getPhotographyPhotos().then((data) => {
+      if (active) setManagedPhotos(data);
+    });
+    return () => { active = false; };
+  }, []);
+
+  const useManagedGallery = managedPhotos.length > 0;
+
   return (
     <>
       <SEO
@@ -45,7 +59,27 @@ export function Photography() {
 
         <section className="px-4 sm:px-6">
           <div className="max-w-7xl mx-auto columns-1 sm:columns-2 lg:columns-3 gap-5 sm:gap-6 [column-fill:_balance]">
-            {photos.map((photo, index) => (
+            {useManagedGallery ? managedPhotos.map((photo, index) => {
+              const url = getPhotographyPublicUrl(photo.storage_path);
+              return (
+
+              <motion.figure
+                key={photo.id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.55, delay: Math.min(index * 0.03, 0.18) }}
+                className="mb-5 sm:mb-6 break-inside-avoid overflow-hidden rounded-2xl border border-border bg-card group shadow-sm"
+              >
+                <img
+                  src={url || ''}
+                  alt={photo.alt_text || `Irtiqa Marketing photography ${index + 1}`}
+                  loading={index < 3 ? 'eager' : 'lazy'}
+                  className="w-full h-auto block object-contain transition-transform duration-700 group-hover:scale-[1.025]"
+                />
+              </motion.figure>
+              );
+            }) : fallbackPhotos.map((photo, index) => (
               <motion.figure
                 key={photo}
                 initial={{ opacity: 0, y: 24 }}

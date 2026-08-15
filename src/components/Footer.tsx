@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import { Newsletter } from './Newsletter';
 
 export function Footer() {
   const links = {
@@ -144,14 +143,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Newsletter */}
-          <div className="mt-8 max-w-md">
-            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 text-white" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 500 }}>
-              Newsletter
-            </h4>
-            <p className="text-white/50 text-sm mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>Get the latest marketing insights in your inbox</p>
-            <Newsletter variant="footer" />
-          </div>
         </div>
       </div>
 

@@ -73,3 +73,18 @@ export default defineConfig([
   },
 ])
 ```
+
+## Photography Admin CMS
+
+The Photography page can be managed from `/admin/photography` using Supabase Auth + Storage + Postgres.
+
+1. Create a Supabase project.
+2. In SQL Editor, run `supabase-photography.sql`.
+3. In Authentication > Users, create the private admin user. Do not add a public signup page.
+4. Copy the project URL and anon/public key into `.env.local` as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+5. Run `npm install` and `npm run dev`.
+6. Sign in at `/admin/login`, then open Photography in the admin sidebar.
+7. Upload the existing gallery photos. New uploads appear on `/photography` automatically.
+8. Add the same two Vite environment variables to Vercel before deploying.
+
+Never expose or commit a Supabase `service_role` key. The browser must use only the anon/public key.

@@ -84,10 +84,16 @@ export function Navigation() {
         <div className="max-w-8xl mx-auto px-2 sm:px-4 lg:px-6">
           <div className="flex justify-between items-center h-16 sm:h-20">
             <Link to="/" className="flex items-center group shrink-0 h-full overflow-hidden" aria-label="Irtiqa Marketing home">
+              {/* Use the white logo in dark mode; the regular logo in light mode. */}
               <img
                 src="/images/brand/irtiqa-logo.png"
                 alt="Irtiqa Marketing"
-                className="w-[110px] sm:w-[126px] h-[60px] sm:h-[68px] object-contain"
+                className="w-[110px] sm:w-[126px] h-[60px] sm:h-[68px] object-contain dark:hidden"
+              />
+              <img
+                src="/images/brand/irtiqa-logo-footer.png"
+                alt="Irtiqa Marketing"
+                className="hidden w-[110px] sm:w-[126px] h-[60px] sm:h-[68px] object-contain dark:block"
               />
             </Link>
 

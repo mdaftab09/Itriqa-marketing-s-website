@@ -1,13 +1,7 @@
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    LayoutDashboard,
-    FileText,
-    MessageSquare,
-    Briefcase,
-    FolderOpen,
-    Mail,
-    Scale,
+    Camera,
     LogOut,
     Menu,
     X,
@@ -21,14 +15,9 @@ export function AdminLayout() {
     const location = useLocation();
     const { signOut, user } = useAuth();
 
+    // The admin panel is intentionally limited to Photography management.
     const navItems = [
-        { path: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-        { path: '/admin/blogs', label: 'Blogs', icon: FileText },
-        { path: '/admin/testimonials', label: 'Testimonials', icon: MessageSquare },
-        { path: '/admin/services', label: 'Services', icon: Briefcase },
-        { path: '/admin/portfolio', label: 'Portfolio', icon: FolderOpen },
-        { path: '/admin/newsletter', label: 'Newsletter', icon: Mail },
-        { path: '/admin/legal', label: 'Legal Pages', icon: Scale },
+        { path: '/admin/photography', label: 'Photography', icon: Camera },
     ];
 
     const isActive = (path: string, exact?: boolean) => {
