@@ -28,8 +28,10 @@ export function Founder() {
               >
                 <div className="aspect-[4/5] bg-neutral-900 rounded-3xl border border-[#C9A14A]/30 overflow-hidden relative shadow-2xl">
                   <img 
-                    src="/images/founder.PNG" 
+                    src="/images/founder.webp" 
                     alt="Faqeha Fatima" 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
@@ -73,9 +75,11 @@ export function Founder() {
                   <div className="md:col-span-5">
                     <div className="aspect-[3/4] bg-neutral-900 border border-border rounded-2xl overflow-hidden shadow-lg">
                       <img 
-                        src="/images/vision_behind_irtiqa.jpg" 
+                        src="/images/vision_behind_irtiqa.webp" 
                         alt="Faqeha Fatima — Vision Behind Irtiqa" 
-                        className="w-full h-full object-cover"
+                        loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
                       />
                     </div>
                   </div>
@@ -106,9 +110,11 @@ export function Founder() {
                 className="group relative aspect-[3/4] w-full max-w-[280px] bg-neutral-900 border border-border/60 rounded-xl overflow-hidden shadow-md"
               >
                 <img
-                  src="/images/founderquote.JPG"
+                  src="/images/founderquote.webp"
                   alt="Executive Vision"
-                  className="w-full h-full object-cover"
+                  loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
                   <span className="text-[10px] uppercase tracking-widest text-[#C9A14A] font-semibold">Executive Vision</span>

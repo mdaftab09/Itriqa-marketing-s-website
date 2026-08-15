@@ -142,8 +142,10 @@ export function About() {
               >
                 <div className="aspect-[4/5] bg-neutral-900 rounded-3xl border border-[#C9A14A]/30 overflow-hidden relative shadow-2xl">
                   <img 
-                    src="/images/founder.PNG" 
+                    src="/images/founder.webp" 
                     alt="Faqeha Fatima" 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover" 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
@@ -186,9 +188,11 @@ export function About() {
                   <div className="md:col-span-5">
                     <div className="aspect-[3/4] bg-neutral-900 border border-white/10 rounded-2xl overflow-hidden shadow-lg">
                       <img 
-                        src="/images/founderquote.JPG" 
+                        src="/images/founderquote.webp" 
                         alt="Faqeha Fatima Quote Portrait" 
-                        className="w-full h-full object-cover"
+                        loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
                       />
                     </div>
                   </div>

@@ -10,6 +10,17 @@ export function Photography() {
 
   useEffect(() => {
     let active = true;
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+    if (supabaseUrl) {
+      const origin = new URL(supabaseUrl).origin;
+      if (!document.head.querySelector(`link[rel="preconnect"][href="${origin}"]`)) {
+        const preconnect = document.createElement('link');
+        preconnect.rel = 'preconnect';
+        preconnect.href = origin;
+        document.head.appendChild(preconnect);
+      }
+    }
+
     getPhotographyPhotos().then((data) => {
       if (active) setManagedPhotos(data);
     });
@@ -56,18 +67,23 @@ export function Photography() {
               return (
                 <motion.figure
                   key={photo.id}
-                  initial={{ opacity: 0, y: 24 }}
+                  initial={{ opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-60px' }}
-                  transition={{ duration: 0.55, delay: Math.min(index * 0.03, 0.18) }}
+                  viewport={{ once: true, margin: '0px 0px 160px 0px' }}
+                  transition={{ duration: 0.45, delay: Math.min(index * 0.025, 0.12) }}
                   className="mb-5 sm:mb-6 break-inside-avoid overflow-hidden rounded-2xl border border-border bg-card group shadow-sm"
                 >
-                  <img
-                    src={url || ''}
-                    alt={photo.alt_text || `Irtiqa Marketing photography ${index + 1}`}
-                    loading={index < 3 ? 'eager' : 'lazy'}
-                    className="w-full h-auto block object-contain transition-transform duration-700 group-hover:scale-[1.025]"
-                  />
+                  <div className="w-full overflow-hidden bg-secondary">
+                    <img
+                      src={url || ''}
+                      alt={photo.alt_text || `Irtiqa Marketing photography ${index + 1}`}
+                      loading={index < 2 ? 'eager' : 'lazy'}
+                      decoding="async"
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="block w-full h-auto max-w-full object-contain transition-transform duration-700 group-hover:scale-[1.025]"
+                    />
+                  </div>
                 </motion.figure>
               );
             }) : (

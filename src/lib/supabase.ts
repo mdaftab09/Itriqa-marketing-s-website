@@ -455,7 +455,7 @@ export async function getPhotographyPhotos(): Promise<PhotographyPhoto[]> {
 
     const { data, error } = await supabase
         .from('photography_photos')
-        .select('*')
+        .select('id,storage_path,title,alt_text,sort_order,created_at,updated_at')
         .order('sort_order', { ascending: true })
         .order('created_at', { ascending: true });
 
@@ -473,15 +473,87 @@ export function getPhotographyPublicUrl(storagePath: string): string | null {
     return data.publicUrl;
 }
 
+async function preparePhotographyImage(file: File): Promise<{ blob: Blob; extension: 'webp'; width: number; height: number }> {
+    const MAX_SOURCE_BYTES = 20 * 1024 * 1024;
+    const MAX_DIMENSION = 2400;
+    const TARGET_BYTES = 1.5 * 1024 * 1024;
+
+    if (!file.type.startsWith('image/')) {
+        throw new Error(`${file.name} is not a supported image.`);
+    }
+    if (file.size > MAX_SOURCE_BYTES) {
+        throw new Error(`${file.name} is larger than 20 MB.`);
+    }
+
+    let source: CanvasImageSource;
+    let sourceWidth: number;
+    let sourceHeight: number;
+    let closeSource: (() => void) | undefined;
+
+    if ('createImageBitmap' in window) {
+        const bitmap = await createImageBitmap(file);
+        source = bitmap;
+        sourceWidth = bitmap.width;
+        sourceHeight = bitmap.height;
+        closeSource = () => bitmap.close();
+    } else {
+        const objectUrl = URL.createObjectURL(file);
+        const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const element = new Image();
+            element.onload = () => resolve(element);
+            element.onerror = () => reject(new Error(`Could not read ${file.name}.`));
+            element.src = objectUrl;
+        });
+        URL.revokeObjectURL(objectUrl);
+        source = image;
+        sourceWidth = image.naturalWidth;
+        sourceHeight = image.naturalHeight;
+    }
+
+    const scale = Math.min(1, MAX_DIMENSION / Math.max(sourceWidth, sourceHeight));
+    const width = Math.max(1, Math.round(sourceWidth * scale));
+    const height = Math.max(1, Math.round(sourceHeight * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+    if (!context) {
+        closeSource?.();
+        throw new Error('Your browser could not prepare this image.');
+    }
+
+    context.drawImage(source, 0, 0, width, height);
+    closeSource?.();
+
+    let quality = 0.82;
+    let blob: Blob | null = null;
+
+    // Keep gallery images small enough for fast mobile loading and the Supabase free tier.
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+        blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', quality));
+        if (!blob) break;
+        if (blob.size <= TARGET_BYTES || quality <= 0.62) break;
+        quality -= 0.07;
+    }
+
+    if (!blob) throw new Error(`Could not optimize ${file.name}.`);
+    return { blob, extension: 'webp', width, height };
+}
+
 export async function uploadPhotographyPhoto(file: File, title = '', altText = '') {
     if (!supabase) throw new Error('Supabase is not configured.');
 
-    const extension = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : 'jpg';
-    const storagePath = `${crypto.randomUUID()}.${extension}`;
+    const optimized = await preparePhotographyImage(file);
+    const storagePath = `${crypto.randomUUID()}.${optimized.extension}`;
 
     const { error: uploadError } = await supabase.storage
         .from('photography')
-        .upload(storagePath, file, { cacheControl: '31536000', upsert: false });
+        .upload(storagePath, optimized.blob, {
+            cacheControl: '31536000',
+            contentType: 'image/webp',
+            upsert: false,
+        });
 
     if (uploadError) throw uploadError;
 
@@ -516,12 +588,16 @@ export async function uploadPhotographyPhoto(file: File, title = '', altText = '
 export async function replacePhotographyPhoto(id: string, oldStoragePath: string, file: File) {
     if (!supabase) throw new Error('Supabase is not configured.');
 
-    const extension = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : 'jpg';
-    const newStoragePath = `${crypto.randomUUID()}.${extension}`;
+    const optimized = await preparePhotographyImage(file);
+    const newStoragePath = `${crypto.randomUUID()}.${optimized.extension}`;
 
     const { error: uploadError } = await supabase.storage
         .from('photography')
-        .upload(newStoragePath, file, { cacheControl: '31536000', upsert: false });
+        .upload(newStoragePath, optimized.blob, {
+            cacheControl: '31536000',
+            contentType: 'image/webp',
+            upsert: false,
+        });
 
     if (uploadError) throw uploadError;
 

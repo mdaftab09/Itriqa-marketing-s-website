@@ -3,7 +3,6 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://hitechglobals.com/sitemap.xml
 
 # Disallow admin
 Disallow: /admin

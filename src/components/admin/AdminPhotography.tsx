@@ -37,7 +37,7 @@ export function AdminPhotography() {
         try {
             for (const file of Array.from(files)) {
                 if (!file.type.startsWith('image/')) continue;
-                if (file.size > 12 * 1024 * 1024) throw new Error(`${file.name} is larger than 12 MB.`);
+                if (file.size > 20 * 1024 * 1024) throw new Error(`${file.name} is larger than 20 MB.`);
                 await uploadPhotographyPhoto(file);
             }
             await loadPhotos();
@@ -130,7 +130,7 @@ export function AdminPhotography() {
                     <Upload className="w-5 h-5 text-accent mt-0.5" />
                     <div className="text-sm text-muted-foreground">
                         <p className="font-medium text-foreground">Upload guidance</p>
-                        <p className="mt-1">JPG, PNG, WebP or AVIF up to 12 MB per image. Images are stored in Supabase Storage and appear on the public Photography page automatically.</p>
+                        <p className="mt-1">JPG, PNG, WebP or AVIF up to 20 MB per image. Each upload is automatically resized to a maximum of 2400px and converted to WebP before storage for faster loading and lower storage/bandwidth usage.</p>
                     </div>
                 </div>
             </div>
