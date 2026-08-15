@@ -63,6 +63,7 @@ export function Navigation() {
     { path: '/industries', label: 'Industries' },
     { path: '/clients', label: 'Clients' },
     { path: '/why-choose-us', label: 'Why Choose Us' },
+    { path: '/testimonials', label: 'Testimonials' },
     { path: '/contact', label: 'Contact' },
   ];
 
@@ -144,7 +145,6 @@ export function Navigation() {
                         { path: '/founder', label: 'About Founder' },
                         { path: '/why-choose-us', label: 'Why Choose Us' },
                         { path: '/clients', label: 'Clients' },
-                        { path: '/testimonials', label: 'Testimonials' },
                       ].map((subLink) => (
                         <Link
                           key={subLink.path}
