@@ -63,7 +63,6 @@ export function Navigation() {
     { path: '/industries', label: 'Industries' },
     { path: '/clients', label: 'Clients' },
     { path: '/why-choose-us', label: 'Why Choose Us' },
-    { path: '/testimonials', label: 'Testimonials' },
     { path: '/contact', label: 'Contact' },
   ];
 

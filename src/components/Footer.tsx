@@ -12,7 +12,6 @@ export function Footer() {
       { name: 'Industries', path: '/industries' },
       { name: 'Clients', path: '/clients' },
       { name: 'Why Choose Us', path: '/why-choose-us' },
-      { name: 'Testimonials', path: '/testimonials' },
       { name: 'Contact', path: '/contact' },
     ],
     services: [
