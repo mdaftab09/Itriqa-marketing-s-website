@@ -440,11 +440,29 @@ export async function getAllLegalPages(): Promise<LegalPage[]> {
 }
 
 
+export const PHOTOGRAPHY_CATEGORIES = [
+    'Healthcare',
+    'Brides',
+    'Real Estate',
+    'Education',
+    'Fashion',
+    'Beauty & Salon',
+    'Restaurants & Hotels',
+    'Startups',
+    'Ecommerce',
+    'NGOs',
+    'Manufacturing',
+    'Corporate Companies',
+] as const;
+
+export type PhotographyCategory = typeof PHOTOGRAPHY_CATEGORIES[number];
+
 export interface PhotographyPhoto {
     id: string;
     storage_path: string;
     title: string;
     alt_text: string;
+    category: PhotographyCategory;
     sort_order: number;
     created_at: string;
     updated_at: string;
@@ -455,7 +473,7 @@ export async function getPhotographyPhotos(): Promise<PhotographyPhoto[]> {
 
     const { data, error } = await supabase
         .from('photography_photos')
-        .select('id,storage_path,title,alt_text,sort_order,created_at,updated_at')
+        .select('id,storage_path,title,alt_text,category,sort_order,created_at,updated_at')
         .order('sort_order', { ascending: true })
         .order('created_at', { ascending: true });
 
@@ -541,7 +559,7 @@ async function preparePhotographyImage(file: File): Promise<{ blob: Blob; extens
     return { blob, extension: 'webp', width, height };
 }
 
-export async function uploadPhotographyPhoto(file: File, title = '', altText = '') {
+export async function uploadPhotographyPhoto(file: File, category: PhotographyCategory, title = '', altText = '') {
     if (!supabase) throw new Error('Supabase is not configured.');
 
     const optimized = await preparePhotographyImage(file);
@@ -570,6 +588,7 @@ export async function uploadPhotographyPhoto(file: File, title = '', altText = '
         .from('photography_photos')
         .insert({
             storage_path: storagePath,
+            category,
             title: title || file.name.replace(/\.[^/.]+$/, ''),
             alt_text: altText || title || 'Irtiqa Marketing photography',
             sort_order: nextOrder,
@@ -615,12 +634,12 @@ export async function replacePhotographyPhoto(id: string, oldStoragePath: string
     return newStoragePath;
 }
 
-export async function updatePhotographyMetadata(id: string, title: string, altText: string) {
+export async function updatePhotographyMetadata(id: string, title: string, altText: string, category: PhotographyCategory) {
     if (!supabase) throw new Error('Supabase is not configured.');
 
     const { error } = await supabase
         .from('photography_photos')
-        .update({ title, alt_text: altText, updated_at: new Date().toISOString() })
+        .update({ title, alt_text: altText, category, updated_at: new Date().toISOString() })
         .eq('id', id);
 
     if (error) throw error;

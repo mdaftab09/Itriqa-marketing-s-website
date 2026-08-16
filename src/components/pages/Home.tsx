@@ -284,7 +284,7 @@ export function Home() {
               <span className="text-neutral-400 text-xs uppercase tracking-[0.25em] font-semibold block mb-3">
                 What We Do
               </span>
-              <h2 className="text-3xl sm:text-5xl font-heading mb-6">Strategy & Execution Combined</h2>
+              <h2 className="text-3xl sm:text-5xl font-heading mb-6">Strategy & Execution</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-body">
                 From strategy to execution, we help businesses build unforgettable brands and measurable growth.
               </p>

@@ -1,21 +1,15 @@
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-    Camera,
-    LogOut,
-    Menu,
-    X,
-    Home
-} from 'lucide-react';
+import { Camera, LogOut, Menu, X, Home, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from './AuthContext';
+import { PHOTOGRAPHY_CATEGORIES } from '../../lib/supabase';
 
 export function AdminLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const location = useLocation();
     const { signOut, user } = useAuth();
 
-    // The admin panel is intentionally limited to Photography management.
     const navItems = [
         { path: '/admin/photography', label: 'Photography', icon: Camera },
     ];
@@ -25,56 +19,110 @@ export function AdminLayout() {
         return location.pathname.startsWith(path);
     };
 
+    const activeSegment = new URLSearchParams(location.search).get('segment');
+
+    const closeSidebar = () => setSidebarOpen(false);
+
     return (
-        <div className="min-h-screen bg-background flex">
-            {/* Sidebar */}
-            <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-300 lg:translate-x-0 lg:static
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-                <div className="flex flex-col h-full">
-                    {/* Logo */}
-                    <div className="p-6 border-b border-border">
-                        <Link to="/admin" className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent/90 rounded-xl flex items-center justify-center">
+        <div className="h-dvh w-full max-w-full overflow-hidden bg-background flex">
+            {/* Desktop sidebar + mobile drawer.
+                The sidebar owns its vertical navigation area so long photo libraries
+                never push the account controls down the page. */}
+            <aside
+                className={`fixed inset-y-0 left-0 z-50 w-[280px] max-w-[88vw] bg-card border-r border-border transform transition-transform duration-300 lg:translate-x-0 lg:static lg:shrink-0 lg:h-dvh ${
+                    sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}
+            >
+                <div className="flex flex-col h-full min-h-0">
+                    <div className="p-5 border-b border-border shrink-0">
+                        <Link
+                            to="/admin"
+                            onClick={closeSidebar}
+                            className="flex items-center gap-3 min-w-0"
+                        >
+                            <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent/90 rounded-xl flex items-center justify-center shrink-0">
                                 <span className="text-white font-bold text-lg">I</span>
                             </div>
-                            <span className="font-bold text-lg text-foreground">Admin Panel</span>
+                            <span className="font-bold text-lg text-foreground truncate">
+                                Admin Panel
+                            </span>
                         </Link>
                     </div>
 
-                    {/* Navigation */}
-                    <nav className="flex-1 p-4 space-y-2">
+                    {/* Only this area scrolls. Footer stays permanently visible. */}
+                    <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain p-4 admin-sidebar-scroll">
                         {navItems.map((item) => (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                onClick={() => setSidebarOpen(false)}
-                                className={`
-                  flex items-center gap-3 px-4 py-3 rounded-xl transition-all
-                  ${isActive(item.path)
-                                        ? 'bg-accent text-accent-foreground'
-                                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                                    }
-                `}
-                            >
-                                <item.icon className="w-5 h-5" />
-                                <span className="font-medium">{item.label}</span>
-                            </Link>
+                            <div key={item.path}>
+                                <Link
+                                    to={item.path}
+                                    onClick={closeSidebar}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                                        isActive(item.path)
+                                            ? 'bg-accent text-accent-foreground'
+                                            : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                                    }`}
+                                >
+                                    <item.icon className="w-5 h-5 shrink-0" />
+                                    <span className="font-medium">Photography</span>
+                                </Link>
+
+                                {isActive('/admin/photography') && (
+                                    <div className="mt-3 ml-2 pl-3 border-l border-border space-y-0.5">
+                                        <Link
+                                            to="/admin/photography"
+                                            onClick={closeSidebar}
+                                            className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                                                !activeSegment
+                                                    ? 'bg-secondary text-foreground font-semibold'
+                                                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                                            }`}
+                                        >
+                                            <span>All photos</span>
+                                            {!activeSegment && <ChevronRight className="w-3.5 h-3.5" />}
+                                        </Link>
+
+                                        {PHOTOGRAPHY_CATEGORIES.map((category) => {
+                                            const selected = activeSegment === category;
+
+                                            return (
+                                                <Link
+                                                    key={category}
+                                                    to={`/admin/photography?segment=${encodeURIComponent(category)}`}
+                                                    onClick={closeSidebar}
+                                                    className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                                                        selected
+                                                            ? 'bg-secondary text-foreground font-semibold'
+                                                            : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                                                    }`}
+                                                >
+                                                    <span className="truncate">{category}</span>
+                                                    {selected && (
+                                                        <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                                                    )}
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
                         ))}
                     </nav>
 
-                    {/* User & Logout */}
-                    <div className="p-4 border-t border-border space-y-2">
+                    {/* Fixed footer: never moves when the photo list grows. */}
+                    <div className="p-4 border-t border-border space-y-2 shrink-0 bg-card">
                         <Link
                             to="/"
+                            onClick={closeSidebar}
                             className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
                         >
                             <Home className="w-5 h-5" />
                             <span className="font-medium">View Website</span>
                         </Link>
 
-                        <div className="px-4 py-2 text-sm text-muted-foreground truncate">
+                        <div
+                            className="px-4 py-2 text-sm text-muted-foreground truncate"
+                            title={user?.email || ''}
+                        >
                             {user?.email}
                         </div>
 
@@ -89,34 +137,32 @@ export function AdminLayout() {
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col min-h-screen">
-                {/* Mobile Header */}
-                <header className="lg:hidden sticky top-0 z-40 bg-background border-b border-border px-4 py-3 flex items-center justify-between">
+            <div className="flex-1 min-w-0 max-w-full h-dvh flex flex-col overflow-hidden">
+                <header className="lg:hidden shrink-0 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
                     <button
                         onClick={() => setSidebarOpen(!sidebarOpen)}
                         className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                        aria-label="Open admin navigation"
                     >
                         {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                     </button>
                     <span className="font-bold text-foreground">Admin Panel</span>
-                    <div className="w-10" /> {/* Spacer */}
+                    <div className="w-10" />
                 </header>
 
-                {/* Page Content */}
-                <main className="flex-1 p-6 lg:p-8">
+                {/* Independent right-hand scroll region. */}
+                <main className="flex-1 min-h-0 min-w-0 max-w-full overflow-y-auto overflow-x-hidden overscroll-contain p-4 sm:p-6 lg:p-8 admin-content-scroll">
                     <Outlet />
                 </main>
             </div>
 
-            {/* Mobile Overlay */}
             {sidebarOpen && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-                    onClick={() => setSidebarOpen(false)}
+                    onClick={closeSidebar}
                 />
             )}
         </div>
