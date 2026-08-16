@@ -2,7 +2,7 @@ import { SEO } from '../SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Camera, ChevronDown, X } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { getPhotographyPhotos, getPhotographyPublicUrl, PHOTOGRAPHY_CATEGORIES, type PhotographyPhoto, type PhotographyCategory } from '../../lib/supabase';
 
 const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -12,6 +12,23 @@ export function Photography() {
   const [managedPhotos, setManagedPhotos] = useState<PhotographyPhoto[]>([]);
   const [activeCategory, setActiveCategory] = useState<PhotographyCategory | ''>('');
   const [viewingCategory, setViewingCategory] = useState<PhotographyCategory | null>(null);
+
+  const openGallery = useCallback((category: PhotographyCategory) => {
+    window.history.pushState(
+      { ...(window.history.state || {}), irtiqaPhotographyGallery: true },
+      '',
+      window.location.href
+    );
+    setViewingCategory(category);
+  }, []);
+
+  const closeGallery = useCallback(() => {
+    if (window.history.state?.irtiqaPhotographyGallery) {
+      window.history.back();
+    } else {
+      setViewingCategory(null);
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -35,15 +52,23 @@ export function Photography() {
   useEffect(() => {
     if (!viewingCategory) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setViewingCategory(null);
+      if (event.key === 'Escape') closeGallery();
     };
+
+    const onPopState = () => {
+      setViewingCategory(null);
+    };
+
     document.addEventListener('keydown', onKeyDown);
+    window.addEventListener('popstate', onPopState);
     document.body.style.overflow = 'hidden';
+
     return () => {
       document.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('popstate', onPopState);
       document.body.style.overflow = '';
     };
-  }, [viewingCategory]);
+  }, [viewingCategory, closeGallery]);
 
   const groupedPhotos = useMemo(() => {
     return PHOTOGRAPHY_CATEGORIES.map((category) => ({
@@ -182,7 +207,7 @@ export function Photography() {
                     <div className="mt-7 flex justify-center sm:justify-start">
                       <button
                         type="button"
-                        onClick={() => setViewingCategory(category)}
+                        onClick={() => openGallery(category)}
                         className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-card px-6 py-3 text-xs uppercase tracking-[0.18em] font-semibold hover:border-[#C9A14A] hover:text-[#C9A14A] transition-colors"
                       >
                         View all {categoryPhotos.length} photos
@@ -235,7 +260,7 @@ export function Photography() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onMouseDown={(event) => {
-              if (event.target === event.currentTarget) setViewingCategory(null);
+              if (event.target === event.currentTarget) closeGallery();
             }}
           >
             <motion.div
@@ -252,7 +277,7 @@ export function Photography() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setViewingCategory(null)}
+                  onClick={closeGallery}
                   className="shrink-0 rounded-full border border-border bg-card p-3 hover:border-[#C9A14A] transition-colors"
                   aria-label="Close gallery"
                 >
