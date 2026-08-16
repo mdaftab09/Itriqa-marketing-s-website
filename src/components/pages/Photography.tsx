@@ -162,7 +162,7 @@ export function Photography() {
                           transition={{ duration: 0.45, delay: Math.min(index * 0.04, 0.12) }}
                           className="overflow-hidden rounded-2xl border border-border bg-card group shadow-sm"
                         >
-                          <div className="aspect-[4/3] w-full overflow-hidden bg-secondary">
+                          <div className="w-full overflow-hidden bg-secondary">
                             <img
                               src={url || ''}
                               alt={photo.alt_text || `${category} photography by Irtiqa Marketing`}
@@ -170,7 +170,7 @@ export function Photography() {
                               decoding="async"
                               fetchPriority={categoryIndex === 0 && index === 0 ? 'high' : 'auto'}
                               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                              className="block w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
+                              className="block w-full h-auto object-contain transition-transform duration-700 group-hover:scale-[1.01]"
                             />
                           </div>
                         </motion.figure>

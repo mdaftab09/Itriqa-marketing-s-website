@@ -12,7 +12,7 @@ import {
     Upload,
     X,
 } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
     supabase,
     PHOTOGRAPHY_CATEGORIES,
@@ -31,8 +31,9 @@ const DEFAULT_CATEGORY: PhotographyCategory = 'Beauty & Salon';
 type CategoryFilter = 'All' | PhotographyCategory;
 
 export function AdminPhotography() {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const requestedSegment = searchParams.get('segment');
+    const location = useLocation();
+    const navigate = useNavigate();
+    const requestedSegment = new URLSearchParams(location.search).get('segment');
     const [photos, setPhotos] = useState<PhotographyPhoto[]>([]);
     const [loading, setLoading] = useState(true);
     const [busy, setBusy] = useState(false);
@@ -72,7 +73,7 @@ export function AdminPhotography() {
     const selectFilter = (value: CategoryFilter) => {
         setFilter(value);
         if (value !== 'All') setUploadCategory(value);
-        setSearchParams(value === 'All' ? {} : { segment: value }, { replace: true });
+        navigate(value === 'All' ? '/admin/photography' : `/admin/photography?segment=${encodeURIComponent(value)}`, { replace: true });
     };
 
     const showError = (value: unknown) => {
@@ -165,7 +166,8 @@ export function AdminPhotography() {
         }
     };
 
-    const visiblePhotos = filter === 'All' ? photos : photos.filter((photo) => photo.category === filter);
+    const filteredPhotos = filter === 'All' ? photos : photos.filter((photo) => photo.category === filter);
+    const visiblePhotos = filteredPhotos.slice(0, 6);
     const currentLabel = filter === 'All' ? 'All photography' : filter;
 
     if (!supabase) {
@@ -210,6 +212,28 @@ export function AdminPhotography() {
                 </div>
             </div>
 
+            <div className="lg:hidden -mx-1 overflow-x-auto pb-1 scrollbar-thin" aria-label="Photography segments">
+                <div className="flex w-max min-w-full gap-2 px-1">
+                    <button
+                        type="button"
+                        onClick={() => selectFilter('All')}
+                        className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition-colors ${filter === 'All' ? 'border-foreground bg-foreground text-background' : 'border-border bg-card text-muted-foreground hover:text-foreground'}`}
+                    >
+                        All photos
+                    </button>
+                    {PHOTOGRAPHY_CATEGORIES.map((category) => (
+                        <button
+                            key={category}
+                            type="button"
+                            onClick={() => selectFilter(category)}
+                            className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition-colors ${filter === category ? 'border-foreground bg-foreground text-background' : 'border-border bg-card text-muted-foreground hover:text-foreground'}`}
+                        >
+                            {category}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             {(message || error) && (
                 <div className={`rounded-xl border p-4 text-sm flex items-start gap-2 ${error ? 'border-red-500/30 bg-red-500/10 text-red-600' : 'border-green-500/30 bg-green-500/10 text-green-700'}`}>
                     {error ? <X className="w-4 h-4 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 mt-0.5 shrink-0" />}
@@ -230,10 +254,10 @@ export function AdminPhotography() {
             <div className="flex items-center justify-between gap-3">
                 <div>
                     <p className="text-sm font-semibold text-foreground">{currentLabel}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{visiblePhotos.length} {visiblePhotos.length === 1 ? 'photo' : 'photos'}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{filteredPhotos.length} {filteredPhotos.length === 1 ? 'photo' : 'photos'}{filteredPhotos.length > 6 ? ' · showing 6' : ''}</p>
                 </div>
                 {filter !== 'All' && (
-                    <button onClick={() => selectFilter('All')} className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">View all segments</button>
+                    <button type="button" onClick={() => selectFilter('All')} className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">View all photos</button>
                 )}
             </div>
 
@@ -253,7 +277,7 @@ export function AdminPhotography() {
                         return (
                             <motion.article key={photo.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(index * 0.03, 0.15) }} className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                                 <div className="aspect-[4/3] bg-secondary overflow-hidden">
-                                    {url ? <img src={url} alt={photo.alt_text || photo.title} className="w-full h-full object-cover" /> : null}
+                                    {url ? <img src={url} alt={photo.alt_text || photo.title} className="w-full h-full object-contain" /> : null}
                                 </div>
                                 <div className="p-4 space-y-3">
                                     {isEditing ? (
