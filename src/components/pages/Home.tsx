@@ -232,7 +232,7 @@ export function Home() {
             {/* Infinite Marquee Ticker */}
             <div className="relative w-full overflow-hidden py-4 mask-gradient-x">
               <div className="flex gap-6 animate-marquee">
-                {[...clientLogos, ...clientLogos, ...clientLogos].map((logo, idx) => (
+                {[...clientLogos, ...clientLogos].map((logo, idx) => (
                   <div
                     key={'logo-' + idx}
                     className="flex-shrink-0 p-4 bg-white/5 rounded-2xl border border-white/10 hover:border-[#C9A14A]/40 transition-all flex items-center justify-center h-28 w-44 group cursor-pointer"

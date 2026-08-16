@@ -35,6 +35,20 @@ export function Navigation() {
   }, []);
 
   useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = previousOverflow;
+      };
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -207,16 +221,17 @@ export function Navigation() {
             <div className="md:hidden flex items-center gap-2">
               <button
                 onClick={openSearch}
-                className="p-2 hover:bg-secondary rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+                className="min-w-11 min-h-11 flex items-center justify-center hover:bg-secondary rounded-lg transition-colors text-muted-foreground hover:text-foreground"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />
               </button>
               <DarkModeToggle />
               <button
-                className="p-2 text-foreground"
+                className="min-w-11 min-h-11 flex items-center justify-center text-foreground hover:bg-secondary rounded-lg transition-colors"
                 onClick={() => setIsOpen(!isOpen)}
-                aria-label="Toggle menu"
+                aria-label={isOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isOpen}
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>

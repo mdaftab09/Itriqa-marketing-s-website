@@ -68,6 +68,7 @@ export function CookieConsent() {
                             <button
                                 onClick={handleDecline}
                                 className="p-1 hover:bg-secondary rounded-lg transition-colors"
+                                aria-label="Dismiss cookie notice"
                             >
                                 <X className="w-4 h-4 text-muted-foreground" />
                             </button>

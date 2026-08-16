@@ -49,19 +49,24 @@ export function SearchModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     }, [query, allBlogs]);
 
     useEffect(() => {
+        if (!isOpen) return;
+
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
-            if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
-                e.preventDefault();
-                if (!isOpen) {
-                    // This won't work directly, but we keep for reference
-                }
-            }
         };
 
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, onClose]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -73,6 +78,7 @@ export function SearchModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-start justify-center pt-20 px-4"
                 onClick={onClose}
+                role="presentation"
             >
                 <motion.div
                     initial={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -80,6 +86,9 @@ export function SearchModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                     exit={{ opacity: 0, y: -20, scale: 0.95 }}
                     className="w-full max-w-xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
                     onClick={(e) => e.stopPropagation()}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Search"
                 >
                     {/* Search Input */}
                     <div className="flex items-center gap-3 p-4 border-b border-border">

@@ -75,7 +75,7 @@ export function Clients() {
             {/* Ticker Row 1 (Left direction) */}
             <div className="relative w-full overflow-hidden py-2 mask-gradient-x">
               <div className="flex gap-6 animate-marquee">
-                {[...row1Logos, ...row1Logos, ...row1Logos].map((client, idx) => (
+                {[...row1Logos, ...row1Logos].map((client, idx) => (
                   <div
                     key={client.name + '-r1-' + idx}
                     className="flex-shrink-0 p-4 bg-card rounded-2xl border border-border hover:border-[#C9A14A]/40 transition-all hover:shadow-sm flex items-center justify-center h-32 w-48 group overflow-hidden"
@@ -93,7 +93,7 @@ export function Clients() {
             {/* Ticker Row 2 (Right/Reverse direction) */}
             <div className="relative w-full overflow-hidden py-2 mask-gradient-x">
               <div className="flex gap-6 animate-marquee-reverse">
-                {[...row2Logos, ...row2Logos, ...row2Logos, ...row2Logos].map((client, idx) => (
+                {[...row2Logos, ...row2Logos].map((client, idx) => (
                   <div
                     key={client.name + '-r2-' + idx}
                     className="flex-shrink-0 p-4 bg-card rounded-2xl border border-border hover:border-[#C9A14A]/40 transition-all hover:shadow-sm flex items-center justify-center h-32 w-48 group overflow-hidden"
